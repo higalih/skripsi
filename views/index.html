@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Recommendation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        /* Responsive Typography */
+        @media (max-width: 576px) {
+            h1.display-4 {
+                font-size: 2rem;
+                padding: 1rem 0.5rem;
+                letter-spacing: 1px;
+            }
+        }
+
+        /* Recipe Card Styles */
+        .recipe-card {
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: box-shadow 0.3s, transform 0.3s;
+            border: 1px solid #e0ffe0;
+            background: linear-gradient(120deg, #f8fff8 0%, #e0ffe0 100%);
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 8px 24px rgba(76, 174, 76, 0.2);
+            transform: translateY(-8px) scale(1.03);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        /* Card Body Layout */
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Form Styles */
+        .form-container {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            border-color: #5cb85c;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            background-color: #4cae4c;
+            border-color: #398439;
+        }
+
+        /* Layout Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .container {
+            max-width: 900px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4 text-center font-weight-bold text-success display-4 shadow-sm rounded-pill py-3 px-4"
+            style="background: linear-gradient(90deg, #e0ffe0 0%, #f0fff0 100%); letter-spacing:2px;">
+            <span class="mr-2">&#127859;</span>Recipe Recommendation System
+        </h1>
+
+        {% if warnings %}
+        <div class="alert alert-warning mt-4">
+            <ul>
+                {% for warning in warnings %}
+                <li>{{ warning }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if totals and remaining %}
+        <div class="mb-4">
+            <h4 class="text-success font-weight-bold">
+                <span class="mr-2">&#127860;</span>Daily Nutrition Summary
+            </h4>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover shadow-sm rounded">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="text-center">Nutrient</th>
+                            <th class="text-center">Consumed</th>
+                            <th class="text-center">Remaining</th>
+                            <th class="text-center">Recommended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key in totals.keys() %}
+                        <tr>
+                            <td class="font-weight-bold">{{ key.capitalize() }}</td>
+                            <td class="text-primary">{{ totals[key]|round(2) }}</td>
+                            <td
+                                class="{% if remaining[key] < 0 %}text-danger font-weight-bold{% elif remaining[key] < DAILY_NUTRITION[key] * 0.1 %}text-warning font-weight-bold{% else %}text-success{% endif %}">
+                                {{ remaining[key]|round(2) }}
+                            </td>
+                            <td class="text-secondary">{{ DAILY_NUTRITION[key] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert alert-danger mt-4">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post" action="/reset" class="mb-3 text-center">
+            <button type="submit" class="btn btn-danger btn-sm font-weight-bold shadow rounded-pill px-3 py-1"
+                style="letter-spacing:0.5px;">
+                <span class="mr-1">&#128259;</span>Reset Day
+            </button>
+        </form>
+        <!--
+        <form method="post" action="/reset" class="mb-3">
+            <button type="submit" class="btn btn-danger">Reset Day</button>
+        </form>
+        -->
+
+        <div class="form-container bg-light shadow rounded">
+            <form method="post" class="mt-4">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="calories" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#9889;</span>Calories
+                        </label>
+                        <input type="number" class="form-control" id="calories" name="calories" step="any" required
+                            placeholder="e.g. 250"
+                            title="Masukkan jumlah kalori makanan Anda dalam satuan kilokalori (kkal)">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="fat" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#129367;</span>Fat
+                        </label>
+                        <input type="number" class="form-control" id="fat" name="fat" step="any" required
+                            placeholder="e.g. 10" title="Masukkan jumlah lemak dalam makanan Anda (gram)">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="carbohydrates" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#127838;</span>Carbohydrates
+                        </label>
+                        <input type="number" class="form-control" id="carbohydrates" name="carbohydrates" step="any"
+                            required placeholder="e.g. 30"
+                            title="Masukkan jumlah karbohidrat dalam makanan Anda (gram)">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="protein" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#129363;</span>Protein
+                        </label>
+                        <input type="number" class="form-control" id="protein" name="protein" step="any" required
+                            placeholder="e.g. 15" title="Masukkan jumlah protein dalam makanan Anda (gram)">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="cholesterol" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#128170;</span>Cholesterol
+                        </label>
+                        <input type="number" class="form-control" id="cholesterol" name="cholesterol" step="any"
+                            required placeholder="e.g. 50" title="Masukkan jumlah kolesterol dalam makanan Anda (mg)">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="sodium" class="font-weight-bold text-secondary">
+                            <span class="mr-1">&#129477;</span>Sodium
+                        </label>
+                        <input type="number" class="form-control" id="sodium" name="sodium" step="any" required
+                            placeholder="e.g. 300" title="Masukkan jumlah sodium dalam makanan Anda (mg)">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fiber" class="font-weight-bold text-secondary">
+                        <span class="mr-1">&#127805;</span>Fiber
+                    </label>
+                    <input type="number" class="form-control" id="fiber" name="fiber" step="any" required
+                        placeholder="e.g. 5" title="Masukkan jumlah serat dalam makanan Anda (gram)">
+                </div>
+                <div class="form-group">
+                    <label for="ingredients" class="font-weight-bold text-secondary">
+                        <span class="mr-1">&#127859;</span>Ingredients
+                    </label>
+                    <input type="text" class="form-control" id="ingredients" name="ingredients" required
+                        placeholder="e.g. egg, spinach, cheese"
+                        title="Masukkan bahan utama makanan, pisahkan dengan koma">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block font-weight-bold">
+                    <span class="mr-1">&#128269;</span>Get Recommendations
+                </button>
+            </form>
+        </div>
+
+        {% if recommendations %}
+        <div class="mt-5">
+            <h2 class="mb-4 text-info font-weight-bold">
+                <span class="mr-2">&#127859;</span>Recommended Recipes
+            </h2>
+            <div class="row">
+                {% for recipe in recommendations %}
+                <div class="col-lg-4 col-md-6 col-12 d-flex align-items-stretch mb-4">
+                    <div class="card recipe-card shadow-lg border-0 w-100">
+                        <img class="card-img-top recipe-image" src="{{ recipe['image_url'] }}"
+                            alt="{{ recipe['recipe_name'] }}">
+                        <div class="card-body">
+                            <h5 class="card-title text-success font-weight-bold">{{ recipe['recipe_name'] }}</h5>
+                            <p class="card-text text-muted">{{ recipe['ingredients_list'] | truncate(100) }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>

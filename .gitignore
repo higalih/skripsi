@@ -1,0 +1,39 @@
+# .gitignore for Python Flask project
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment/config files
+*.env
+
+# Log files
+*.log
+
+# Ignore large data or backup files (optional)
+*.bak
+*.tmp
+
+# Ignore your IDE/editor settings (optional)
+.vscode/
+.idea/
+
+# Skip specific files and directories
+raw-data_recipe.csv
+*.md
+*.pptx
+Arsip/
+papers/
