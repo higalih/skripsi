@@ -86,19 +86,6 @@
             max-width: 900px;
         }
 
-        .title-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(90deg, #e0ffe0 0%, #f0fff0 100%);
-            border-radius: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            padding: 1.5rem 2rem;
-            margin-top: 2rem;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
         .main-title {
             font-size: 2.2rem;
             font-weight: bold;
@@ -106,20 +93,6 @@
             letter-spacing: 2px;
             text-align: left;
             flex: 1;
-        }
-
-        .signature-inline-in-title {
-            display: block;
-            margin: 0.5em auto 0 auto;
-            font-size: 0.9rem;
-            color: #388e3c;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 12px;
-            padding: 0.15em 0.9em;
-            font-weight: 400;
-            letter-spacing: 1px;
-            width: fit-content;
-            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -133,28 +106,17 @@
                 font-size: 1.3rem;
                 text-align: center;
             }
-
-            .signature-inline-in-title {
-                margin-left: 0;
-                margin-top: 0.7em;
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="title-row">
-            <span class="mr-2">&#127859;</span>
-            <span class="main-title">Recipe Recommendation System</span>
-            <div class="signature-inline-in-title">&copy; Galih | Skripsi</div>
-        </div>
-        <!-- <h1 class="mt-5 mb-4 text-center font-weight-bold text-success display-4 shadow-sm rounded-pill py-3 px-4"
-            style="background: linear-gradient(90deg, #e0ffe0 0%, #f0fff0 100%); letter-spacing:2px; position: relative;">
-            <span class="mr-2">&#127859;</span>Recipe Recommendation System<br />
-            <span class="signature-inline-in-title">&copy; Galih | Skripsi Sekali</span>
-        </h1> -->
+        <!-- Centered title at the top of your container -->
+        <h1 class="mt-5 mb-4 text-center font-weight-bold text-success display-4 shadow-sm rounded-pill py-3 px-4"
+            style="background: linear-gradient(90deg, #e0ffe0 0%, #f0fff0 100%); letter-spacing:2px;">
+            <span class="mr-2">&#127859;</span>Recipe Recommendation System
+        </h1>
         {% if warnings %}
         <div class="alert alert-warning mt-4">
             <ul>
