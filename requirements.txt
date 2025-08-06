@@ -3,3 +3,5 @@ gunicorn
 numpy==1.24.3
 pandas==2.0.3
 scikit-learn==1.6.1
+setuptools
+wheel
