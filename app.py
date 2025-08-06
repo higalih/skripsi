@@ -1,6 +1,6 @@
-import numpy as np
 import pandas as pd
 from flask import Flask, render_template, request, session
+from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
@@ -32,7 +32,8 @@ app.secret_key = "your_secret_key"  # Needed for session
 data = pd.read_csv("recipe_final (1).csv")
 
 # Preprocess Ingredients
-vectorizer = TfidfVectorizer()
+# vectorizer = TfidfVectorizer()
+vectorizer = TfidfVectorizer(max_features=500)  # Limit features for memory
 X_ingredients = vectorizer.fit_transform(data["ingredients_list"])
 
 # Normalize Numerical Features
@@ -51,8 +52,10 @@ X_numerical = scaler.fit_transform(
     ]
 )
 
-# Combine Features
-X_combined = np.hstack([X_numerical, X_ingredients.toarray()])
+# Combine Features (keep everything sparse)
+X_numerical_sparse = csr_matrix(X_numerical)
+# X_combined = np.hstack([X_numerical, X_ingredients.toarray()])
+X_combined = hstack([X_numerical_sparse, X_ingredients])
 
 # Train KNN Model
 knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
@@ -62,9 +65,9 @@ knn.fit(X_combined)
 def recommend_recipes(input_features):
     input_features_scaled = scaler.transform([input_features[:7]])
     input_ingredients_transformed = vectorizer.transform([input_features[7]])
-    input_combined = np.hstack(
-        [input_features_scaled, input_ingredients_transformed.toarray()]
-    )
+    input_numerical_sparse = csr_matrix(input_features_scaled)
+    # input_combined = np.hstack([input_features_scaled, input_ingredients_transformed.toarray()])
+    input_combined = hstack([input_numerical_sparse, input_ingredients_transformed])
     distances, indices = knn.kneighbors(input_combined)
     recommendations = data.iloc[indices[0]]
     return recommendations[["recipe_name", "ingredients_list", "image_url"]].head(5)
