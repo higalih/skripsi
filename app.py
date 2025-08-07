@@ -29,7 +29,7 @@ app = Flask(__name__, template_folder="views")
 app.secret_key = "your_secret_key"  # Needed for session
 
 # Load data
-data = pd.read_csv("recipe_final (1).csv")
+data = pd.read_csv("recipe_final_new3.csv")
 
 # Preprocess Ingredients
 # vectorizer = TfidfVectorizer()
