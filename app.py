@@ -1,5 +1,8 @@
+import os
+
 import pandas as pd
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, send_file, session, url_for
+from kaggle.api.kaggle_api_extended import KaggleApi
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -27,6 +30,36 @@ DAILY_NUTRITION = {
 
 app = Flask(__name__, template_folder="views")
 app.secret_key = "your_secret_key"  # Needed for session
+
+# ===== KAGGLE IMAGE PROXY SETUP ===== #
+os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(
+    os.path.abspath(__file__)
+)  # Looks for kaggle.json in app dir
+kaggle_api = KaggleApi()
+try:
+    kaggle_api.authenticate()
+except Exception as e:
+    print(f"Kaggle API authentication failed: {str(e)}")
+
+
+@app.route("/kaggle_image/<int:recipe_id>")
+def serve_image(recipe_id):
+    """Proxy route for Kaggle-hosted images with caching"""
+    try:
+        temp_path = f"/tmp/{recipe_id}.jpg"
+
+        if not os.path.exists(temp_path):
+            kaggle_api.dataset_download_file(
+                "elisaxxygao/foodrecsysv1",  # Replace with your dataset
+                f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+                path="/tmp",
+                quiet=True,
+                force=False,
+            )
+        return send_file(temp_path, mimetype="image/jpeg")
+    except Exception as e:
+        return f"Error loading image: {str(e)}", 500
+
 
 # Load data
 data = pd.read_csv("recipe_final_new3.csv")
