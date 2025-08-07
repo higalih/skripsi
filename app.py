@@ -35,30 +35,48 @@ app.secret_key = "your_secret_key"  # Needed for session
 os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(
     os.path.abspath(__file__)
 )  # Looks for kaggle.json in app dir
-kaggle_api = KaggleApi()
-try:
-    kaggle_api.authenticate()
-except Exception as e:
-    print(f"Kaggle API authentication failed: {str(e)}")
+# kaggle_api = KaggleApi()
+# try:
+# kaggle_api.authenticate()
+# except Exception as e:
+# print(f"Kaggle API authentication failed: {str(e)}")
+
+kaggle_api = KaggleApi(
+    {
+        "username": "masgalih",  # From kaggle.json
+        "key": "5e115ed662344652ecc892e49c958e85",  # From kaggle.json
+    }
+)
 
 
 @app.route("/kaggle_image/<int:recipe_id>")
+# def serve_image(recipe_id):
+# """Proxy route for Kaggle-hosted images with caching"""
+# try:
+# temp_path = f"/tmp/{recipe_id}.jpg"
+#
+# if not os.path.exists(temp_path):
+# kaggle_api.dataset_download_file(
+# "elisaxxygao/foodrecsysv1",  # Replace with your dataset
+# f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+# path="/tmp",
+# quiet=True,
+# force=False,
+# )
+# return send_file(temp_path, mimetype="image/jpeg")
+# except Exception as e:
+# return f"Error loading image: {str(e)}", 500
+@app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
-    """Proxy route for Kaggle-hosted images with caching"""
     try:
-        temp_path = f"/tmp/{recipe_id}.jpg"
-
-        if not os.path.exists(temp_path):
-            kaggle_api.dataset_download_file(
-                "elisaxxygao/foodrecsysv1",  # Replace with your dataset
-                f"raw-data-images/raw-data-images/{recipe_id}.jpg",
-                path="/tmp",
-                quiet=True,
-                force=False,
-            )
-        return send_file(temp_path, mimetype="image/jpeg")
+        # Direct S3 access (no API rate limits)
+        s3_url = f"https://storage.googleapis.com/kaggle-datasets/YOUR_KAGGLE_USERNAME/foodrecsysv1/raw-data-images/raw-data-images/{recipe_id}.jpg"
+        response = requests.get(s3_url, stream=True, timeout=10)
+        response.raise_for_status()
+        return send_file(BytesIO(response.content), mimetype="image/jpeg")
     except Exception as e:
-        return f"Error loading image: {str(e)}", 500
+        print(f"Image fetch failed: {str(e)}")
+        return "Image unavailable", 404
 
 
 # Load data
