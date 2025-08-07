@@ -8,15 +8,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
-# TODO: Step 7 - UI Polish & Advanced Features
-# - Improve the user interface for better usability and appearance
-# - Add tooltips to form fields for user guidance
-# - Add help texts or placeholders in input fields
-# - Make the app more mobile-friendly (responsive layout)
-# - Polish the appearance of the nutrition summary and recipe cards
-# - (Optional) Add a loading spinner or progress indicator when submitting
-# - (Optional) Add icons or color cues for warnings/errors
-
 # Daily nutrition standard (FDA/WHO)
 DAILY_NUTRITION = {
     "calories": 2000,  # kcal
@@ -33,10 +24,10 @@ app.secret_key = "your_secret_key"  # Needed for session
 
 # ===== KAGGLE IMAGE PROXY SETUP ===== #
 
-# Set config directory explicitly
+# Set config directory explicitly (where kaggle.json is located)
 os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(os.path.abspath(__file__))
 
-# Initialize API
+# Initialize Kaggle API
 kaggle_api = None
 try:
     kaggle_api = KaggleApi()
@@ -44,37 +35,42 @@ try:
     print("Kaggle API authenticated successfully")
 except Exception as e:
     print(f"Kaggle API error: {str(e)}")
-    # Fallback to direct S3 access if API fails
     kaggle_api = None
 
 
 @app.route("/kaggle_image/<int:recipe_id>")
-# def serve_image(recipe_id):
-# """Proxy route for Kaggle-hosted images with caching"""
-# try:
-# temp_path = f"/tmp/{recipe_id}.jpg"
-#
-# if not os.path.exists(temp_path):
-# kaggle_api.dataset_download_file(
-# "elisaxxygao/foodrecsysv1",  # Replace with your dataset
-# f"raw-data-images/raw-data-images/{recipe_id}.jpg",
-# path="/tmp",
-# quiet=True,
-# force=False,
-# )
-# return send_file(temp_path, mimetype="image/jpeg")
-# except Exception as e:
-# return f"Error loading image: {str(e)}", 500
-@app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
+    """
+    Proxy route for Kaggle-hosted images with local caching in /tmp.
+    """
+    temp_path = f"/tmp/{recipe_id}.jpg"
+    if not os.path.exists(temp_path):
+        if kaggle_api:
+            try:
+                kaggle_api.dataset_download_file(
+                    "elisaxxygao/foodrecsysv1",  # Replace with your dataset slug if different
+                    f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+                    path="/tmp",
+                    quiet=True,
+                    force=True,
+                )
+                # The Kaggle API downloads as a zip if not a single file, so check and extract if needed
+                zip_path = temp_path + ".zip"
+                if os.path.exists(zip_path):
+                    import zipfile
+
+                    with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                        zip_ref.extractall("/tmp")
+                    os.remove(zip_path)
+            except Exception as e:
+                print(f"Kaggle API image fetch failed: {str(e)}")
+                return "Image unavailable", 404
+        else:
+            return "Image unavailable", 404
     try:
-        # Direct S3 access (no API rate limits)
-        s3_url = f"https://storage.googleapis.com/kaggle-datasets/YOUR_KAGGLE_USERNAME/foodrecsysv1/raw-data-images/raw-data-images/{recipe_id}.jpg"
-        response = requests.get(s3_url, stream=True, timeout=10)
-        response.raise_for_status()
-        return send_file(BytesIO(response.content), mimetype="image/jpeg")
+        return send_file(temp_path, mimetype="image/jpeg")
     except Exception as e:
-        print(f"Image fetch failed: {str(e)}")
+        print(f"Image send failed: {str(e)}")
         return "Image unavailable", 404
 
 
@@ -82,7 +78,6 @@ def serve_image(recipe_id):
 data = pd.read_csv("recipes_kaggle_images.csv")
 
 # Preprocess Ingredients
-# vectorizer = TfidfVectorizer()
 vectorizer = TfidfVectorizer(max_features=500)  # Limit features for memory
 X_ingredients = vectorizer.fit_transform(data["ingredients_list"])
 
@@ -104,7 +99,6 @@ X_numerical = scaler.fit_transform(
 
 # Combine Features (keep everything sparse)
 X_numerical_sparse = csr_matrix(X_numerical)
-# X_combined = np.hstack([X_numerical, X_ingredients.toarray()])
 X_combined = hstack([X_numerical_sparse, X_ingredients])
 
 # Train KNN Model
@@ -116,14 +110,14 @@ def recommend_recipes(input_features):
     input_features_scaled = scaler.transform([input_features[:7]])
     input_ingredients_transformed = vectorizer.transform([input_features[7]])
     input_numerical_sparse = csr_matrix(input_features_scaled)
-    # input_combined = np.hstack([input_features_scaled, input_ingredients_transformed.toarray()])
     input_combined = hstack([input_numerical_sparse, input_ingredients_transformed])
     distances, indices = knn.kneighbors(input_combined)
     recommendations = data.iloc[indices[0]]
-    return recommendations[["recipe_name", "ingredients_list", "image_url"]].head(5)
+    return recommendations[
+        ["recipe_name", "ingredients_list", "image_url", "recipe_id"]
+    ].head(5)
 
 
-# Function to truncate product name
 def truncate(text, length):
     if len(text) > length:
         return text[:length] + "..."
@@ -150,7 +144,6 @@ def index():
             fiber = float(request.form.get("fiber", 0))
             ingredients = request.form.get("ingredients", "").strip()
 
-            # Ensure ingredients are provided
             if not ingredients:
                 raise ValueError("Ingredients cannot be empty.")
 
@@ -164,7 +157,6 @@ def index():
                 "fiber": fiber,
                 "ingredients": ingredients,
             }
-            # TODO: Handle more than 3 meals (reset or notify user)
             meals = session["meals"]
             if len(meals) < 3:
                 meals.append(meal)
@@ -183,7 +175,6 @@ def index():
                 ingredients,
             ]
 
-            # Generate recommendations
             recommendations = recommend_recipes(input_features).to_dict(
                 orient="records"
             )
