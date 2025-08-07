@@ -1,5 +1,5 @@
 import pandas as pd
-from flask import Flask, render_template, request, session
+from flask import Flask, redirect, render_template, request, session, url_for
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -167,9 +167,6 @@ def index():
         error=error,
         DAILY_NUTRITION=DAILY_NUTRITION,
     )
-
-
-from flask import redirect, url_for
 
 
 @app.route("/reset", methods=["POST"])
