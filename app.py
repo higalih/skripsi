@@ -62,7 +62,7 @@ def serve_image(recipe_id):
 
 
 # Load data
-data = pd.read_csv("recipe_final_new3.csv")
+data = pd.read_csv("recipes_kaggle_images.csv")
 
 # Preprocess Ingredients
 # vectorizer = TfidfVectorizer()
