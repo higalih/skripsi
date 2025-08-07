@@ -32,21 +32,20 @@ app = Flask(__name__, template_folder="views")
 app.secret_key = "your_secret_key"  # Needed for session
 
 # ===== KAGGLE IMAGE PROXY SETUP ===== #
-os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(
-    os.path.abspath(__file__)
-)  # Looks for kaggle.json in app dir
-# kaggle_api = KaggleApi()
-# try:
-# kaggle_api.authenticate()
-# except Exception as e:
-# print(f"Kaggle API authentication failed: {str(e)}")
 
-kaggle_api = KaggleApi(
-    {
-        "username": "masgalih",  # From kaggle.json
-        "key": "5e115ed662344652ecc892e49c958e85",  # From kaggle.json
-    }
-)
+# Set config directory explicitly
+os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(os.path.abspath(__file__))
+
+# Initialize API
+kaggle_api = None
+try:
+    kaggle_api = KaggleApi()
+    kaggle_api.authenticate()
+    print("Kaggle API authenticated successfully")
+except Exception as e:
+    print(f"Kaggle API error: {str(e)}")
+    # Fallback to direct S3 access if API fails
+    kaggle_api = None
 
 
 @app.route("/kaggle_image/<int:recipe_id>")
