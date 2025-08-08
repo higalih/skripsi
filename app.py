@@ -219,9 +219,7 @@ def reset():
 @app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
     temp_path = f"/tmp/{recipe_id}.jpg"
-    print(f"Request for image {recipe_id}, temp_path: {temp_path}")
     if not os.path.exists(temp_path):
-        print("Image not cached, attempting to fetch from Kaggle...")
         if kaggle_api:
             try:
                 kaggle_api.dataset_download_file(
@@ -231,22 +229,17 @@ def serve_image(recipe_id):
                     quiet=True,
                     force=True,
                 )
-                print("Kaggle API download attempted.")
             except Exception as e:
-                print(f"Kaggle API image fetch failed: {str(e)}")
+                print(f"Could not fetch image: {e}")
                 return "Image unavailable", 404
         else:
-            print("Kaggle API not initialized.")
             return "Image unavailable", 404
-    else:
-        print("Image found in cache.")
     try:
-        print(f"Attempting to send file: {temp_path}")
         return send_file(temp_path, mimetype="image/jpeg")
     except Exception as e:
-        print(f"Image send failed: {str(e)}")
+        print(f"Could not send image: {e}")
         return "Image unavailable", 404
 
 
-# if __name__ == "__main__":
-# app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
