@@ -216,10 +216,39 @@ def reset():
     return redirect(url_for("index"))
 
 
+#
+# @app.route("/kaggle_image/<int:recipe_id>")
+# def serve_image(recipe_id):
+# temp_path = f"/tmp/{recipe_id}.jpg"
+# if not os.path.exists(temp_path):
+# if kaggle_api:
+# try:
+# kaggle_api.dataset_download_file(
+# "elisaxxygao/foodrecsysv1",
+# f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+# path="/tmp",
+# quiet=True,
+# force=True,
+# )
+# except Exception as e:
+# print(f"Could not fetch image: {e}")
+# return "Image unavailable", 404
+# else:
+# return "Image unavailable", 404
+# try:
+# return send_file(temp_path, mimetype="image/jpeg")
+# except Exception as e:
+# print(f"Could not send image: {e}")
+# return "Image unavailable", 404
+#
+
+
 @app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
     temp_path = f"/tmp/{recipe_id}.jpg"
+    print(f"Request for image {recipe_id}, temp_path: {temp_path}")
     if not os.path.exists(temp_path):
+        print("Image not cached, attempting to fetch from Kaggle...")
         if kaggle_api:
             try:
                 kaggle_api.dataset_download_file(
@@ -229,15 +258,20 @@ def serve_image(recipe_id):
                     quiet=True,
                     force=True,
                 )
+                print("Kaggle API download attempted.")
             except Exception as e:
-                print(f"Could not fetch image: {e}")
+                print(f"Kaggle API image fetch failed: {str(e)}")
                 return "Image unavailable", 404
         else:
+            print("Kaggle API not initialized.")
             return "Image unavailable", 404
+    else:
+        print("Image found in cache.")
     try:
+        print(f"Attempting to send file: {temp_path}")
         return send_file(temp_path, mimetype="image/jpeg")
     except Exception as e:
-        print(f"Could not send image: {e}")
+        print(f"Image send failed: {str(e)}")
         return "Image unavailable", 404
 
 
