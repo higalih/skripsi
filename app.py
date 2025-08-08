@@ -216,5 +216,30 @@ def reset():
     return redirect(url_for("index"))
 
 
+@app.route("/kaggle_image/<int:recipe_id>")
+def serve_image(recipe_id):
+    temp_path = f"/tmp/{recipe_id}.jpg"
+    if not os.path.exists(temp_path):
+        if kaggle_api:
+            try:
+                kaggle_api.dataset_download_file(
+                    "elisaxxygao/foodrecsysv1",
+                    f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+                    path="/tmp",
+                    quiet=True,
+                    force=True,
+                )
+            except Exception as e:
+                print(f"Could not fetch image: {e}")
+                return "Image unavailable", 404
+        else:
+            return "Image unavailable", 404
+    try:
+        return send_file(temp_path, mimetype="image/jpeg")
+    except Exception as e:
+        print(f"Could not send image: {e}")
+        return "Image unavailable", 404
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
