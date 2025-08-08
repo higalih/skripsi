@@ -261,9 +261,9 @@
                 <div class="col-lg-4 col-md-6 col-12 d-flex align-items-stretch mb-4">
                     <div class="card recipe-card shadow-lg border-0 w-100">
                         <img class="card-img-top recipe-image"
-                            src="{{ url_for('serve_image', recipe_id=rec['recipe_id']) }}"
+                            src="{{ url_for('serve_image', recipe_id=recipe['recipe_id']) }}"
                             alt="{{ recipe['recipe_name'] }}"
-                            onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Image+Not+Available';">>
+                            onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Image+Not+Available';">
                         <div class="card-body">
                             <h5 class="card-title text-success font-weight-bold">{{ recipe['recipe_name'] }}</h5>
                             <p class="card-text text-muted">{{ recipe['ingredients_list'] | truncate(100) }}</p>
