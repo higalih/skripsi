@@ -37,6 +37,7 @@ except Exception as e:
     print(f"Kaggle API error: {str(e)}")
     kaggle_api = None
 
+
 @app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
     """
@@ -47,7 +48,7 @@ def serve_image(recipe_id):
         if kaggle_api:
             try:
                 kaggle_api.dataset_download_file(
-                    "elisaxxygao/foodrecsysv1",
+                    "elisaxxygao/foodrecsysv1",  # Replace with your dataset slug if different
                     f"raw-data-images/raw-data-images/{recipe_id}.jpg",
                     path="/tmp",
                     quiet=True,
@@ -57,6 +58,7 @@ def serve_image(recipe_id):
                 zip_path = temp_path + ".zip"
                 if os.path.exists(zip_path):
                     import zipfile
+
                     with zipfile.ZipFile(zip_path, "r") as zip_ref:
                         zip_ref.extractall("/tmp")
                     os.remove(zip_path)
@@ -70,6 +72,7 @@ def serve_image(recipe_id):
     except Exception as e:
         print(f"Image send failed: {str(e)}")
         return "Image unavailable", 404
+
 
 # Load data
 data = pd.read_csv("recipes_kaggle_images.csv")
@@ -102,6 +105,7 @@ X_combined = hstack([X_numerical_sparse, X_ingredients])
 knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
 knn.fit(X_combined)
 
+
 def recommend_recipes(input_features):
     input_features_scaled = scaler.transform([input_features[:7]])
     input_ingredients_transformed = vectorizer.transform([input_features[7]])
@@ -113,11 +117,13 @@ def recommend_recipes(input_features):
         ["recipe_name", "ingredients_list", "image_url", "recipe_id"]
     ].head(5)
 
+
 def truncate(text, length):
     if len(text) > length:
         return text[:length] + "..."
     else:
         return text
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -203,10 +209,37 @@ def index():
         DAILY_NUTRITION=DAILY_NUTRITION,
     )
 
+
 @app.route("/reset", methods=["POST"])
 def reset():
     session["meals"] = []
     return redirect(url_for("index"))
 
+
+@app.route("/kaggle_image/<int:recipe_id>")
+def serve_image(recipe_id):
+    temp_path = f"/tmp/{recipe_id}.jpg"
+    if not os.path.exists(temp_path):
+        if kaggle_api:
+            try:
+                kaggle_api.dataset_download_file(
+                    "elisaxxygao/foodrecsysv1",
+                    f"raw-data-images/raw-data-images/{recipe_id}.jpg",
+                    path="/tmp",
+                    quiet=True,
+                    force=True,
+                )
+            except Exception as e:
+                print(f"Could not fetch image: {e}")
+                return "Image unavailable", 404
+        else:
+            return "Image unavailable", 404
+    try:
+        return send_file(temp_path, mimetype="image/jpeg")
+    except Exception as e:
+        print(f"Could not send image: {e}")
+        return "Image unavailable", 404
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000,
+    app.run(host="0.0.0.0", port=5000, debug=True)
