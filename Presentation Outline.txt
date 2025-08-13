@@ -1,0 +1,118 @@
+Saya sertakan juga saran tempat gambar/diagram agar presentasi lebih menarik.
+
+---
+
+## **SLIDE 1: Judul**
+**PENGEMBANGAN APLIKASI REKOMENDASI RESEP MAKANAN SEHAT BERBASIS MACHINE LEARNING DENGAN ALGORITMA TF-IDF DAN KNN**  
+Nama: [Nama Anda]  
+NIM: [NIM Anda]  
+Tanggal: [Tanggal Sidang]
+
+---
+
+## **SLIDE 2: Latar Belakang**
+- Pola makan sehat penting untuk mencegah penyakit dan menjaga kesehatan.
+- Banyak orang kesulitan memilih resep yang sesuai kebutuhan gizi dan preferensi bahan.
+- Diperlukan sistem rekomendasi resep yang cerdas dan mudah digunakan.
+
+---
+
+## **SLIDE 3: Rumusan Masalah**
+- Bagaimana membangun sistem rekomendasi resep makanan sehat berbasis web?
+- Bagaimana menerapkan algoritma TF-IDF dan KNN untuk pencarian resep yang relevan?
+- Bagaimana menampilkan informasi resep secara menarik dan efisien?
+
+---
+
+## **SLIDE 4: Tujuan Penelitian**
+- Mengembangkan aplikasi web rekomendasi resep makanan sehat.
+- Mengimplementasikan algoritma TF-IDF untuk representasi bahan makanan.
+- Menggunakan KNN untuk pencarian resep terdekat sesuai input pengguna.
+
+---
+
+## **SLIDE 5: Manfaat Penelitian**
+- Membantu masyarakat memilih resep yang sesuai kebutuhan gizi.
+- Memberikan contoh penerapan machine learning pada bidang kuliner.
+- Menjadi referensi pengembangan sistem rekomendasi serupa.
+
+---
+
+## **SLIDE 6: Arsitektur Sistem**
+- Diagram arsitektur sistem:  
+  **[Tempatkan diagram arsitektur: User → Web App (Flask) → Model (TF-IDF+KNN) → Dataset → Hasil Rekomendasi]**
+- Penjelasan singkat alur data dari input user hingga output rekomendasi.
+
+---
+
+## **SLIDE 7: Dataset & Preprocessing**
+- Dataset: Resep makanan dari Kaggle (jumlah data, fitur utama).
+- Preprocessing:  
+  - Pembersihan data (missing value, duplikasi)
+  - Ekstraksi dan normalisasi fitur numerik (kalori, protein, dsb)
+  - Tokenisasi dan normalisasi bahan makanan
+
+---
+
+## **SLIDE 8: Representasi Fitur dengan TF-IDF**
+- TF-IDF digunakan untuk mengubah daftar bahan menjadi vektor numerik.
+- Setiap resep diwakili oleh vektor TF-IDF dari ingredients.
+- **[Tempatkan ilustrasi vektor TF-IDF sederhana]**
+
+---
+
+## **SLIDE 9: Normalisasi Fitur Numerik**
+- Fitur numerik (kalori, protein, dsb) dinormalisasi menggunakan StandardScaler.
+- Tujuan: Menyamakan skala agar tidak mendominasi perhitungan jarak.
+- **[Gambar: contoh tabel fitur sebelum & sesudah normalisasi]**
+
+---
+
+## **SLIDE 10: Penggabungan Fitur & Model KNN**
+- Fitur numerik dan TF-IDF digabungkan (concatenate).
+- Model KNN digunakan untuk mencari resep terdekat berdasarkan input user.
+- **[Diagram: proses input → penggabungan fitur → KNN → hasil rekomendasi]**
+
+---
+
+## **SLIDE 11: Alur Sistem Web**
+- User mengisi kebutuhan nutrisi & bahan yang diinginkan.
+- Sistem memproses input, mencari resep terdekat, dan menampilkan rekomendasi.
+- **[Screenshot/tampilan form input & hasil rekomendasi]**
+
+---
+
+## **SLIDE 12: Implementasi Proxy Gambar Kaggle**
+- Gambar resep diambil dari Kaggle menggunakan proxy dan local caching.
+- Tujuan: Mempercepat loading gambar dan menghemat bandwidth.
+- **[Gambar: ilustrasi alur proxy gambar]**
+
+---
+
+## **SLIDE 13: Hasil & Evaluasi**
+- Contoh hasil rekomendasi yang diberikan sistem.
+- Evaluasi: relevansi, kecepatan, kemudahan penggunaan (uji coba user).
+- **[Tabel/diagram hasil pengujian]**
+
+---
+
+## **SLIDE 14: Tantangan & Solusi**
+- Tantangan: data tidak seimbang, variasi bahan, keterbatasan dataset.
+- Solusi: preprocessing, normalisasi, caching gambar.
+- Saran pengembangan: personalisasi, dataset lebih besar, dsb.
+
+---
+
+## **SLIDE 15: Kesimpulan & Saran**
+- Sistem berhasil memberikan rekomendasi resep berbasis TF-IDF & KNN.
+- Aplikasi web mudah digunakan dan informatif.
+- Saran: pengembangan fitur personalisasi, integrasi API gizi, dsb.
+
+---
+
+**Catatan:**
+- Ganti [Nama Anda], [NIM Anda], dan [Tanggal Sidang] sesuai data.
+- Untuk gambar/diagram, gunakan tools seperti draw.io, PowerPoint, atau screenshot aplikasi.
+- Jika ingin penjelasan detail untuk tiap slide, atau ingin versi Bahasa Inggris, silakan minta!
+
+---

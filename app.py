@@ -40,35 +40,11 @@ except Exception as e:
 
 @app.route("/kaggle_image/<int:recipe_id>")
 def serve_image(recipe_id):
-    """
-    Proxy route for Kaggle-hosted images with local caching in /tmp.
-    """
-    temp_path = f"/tmp/{recipe_id}.jpg"
-    if not os.path.exists(temp_path):
-        if kaggle_api:
-            try:
-                kaggle_api.dataset_download_file(
-                    "elisaxxygao/foodrecsysv1",
-                    f"raw-data-images/raw-data-images/{recipe_id}.jpg",
-                    path="/tmp",
-                    quiet=True,
-                    force=True,
-                )
-                # The Kaggle API downloads as a zip if not a single file, so check and extract if needed
-                zip_path = temp_path + ".zip"
-                if os.path.exists(zip_path):
-                    import zipfile
-
-                    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                        zip_ref.extractall("/tmp")
-                    os.remove(zip_path)
-            except Exception as e:
-                print(f"Kaggle API image fetch failed: {str(e)}")
-                return "Image unavailable", 404
-        else:
-            return "Image unavailable", 404
+    local_path = f"raw-data-images/raw-data-images/{recipe_id}.jpg"
+    if not os.path.exists(local_path):
+        return "Image unavailable", 404
     try:
-        return send_file(temp_path, mimetype="image/jpeg")
+        return send_file(local_path, mimetype="image/jpeg")
     except Exception as e:
         print(f"Image send failed: {str(e)}")
         return "Image unavailable", 404
