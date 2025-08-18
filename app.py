@@ -2,7 +2,8 @@ import os
 
 import pandas as pd
 from flask import Flask, redirect, render_template, request, send_file, session, url_for
-from kaggle.api.kaggle_api_extended import KaggleApi
+
+# from kaggle.api.kaggle_api_extended import KaggleApi
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -193,4 +194,5 @@ def reset():
 
 
 if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
     app.run(host="0.0.0.0", port=5000, debug=True)
