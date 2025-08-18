@@ -2,8 +2,7 @@ import os
 
 import pandas as pd
 from flask import Flask, redirect, render_template, request, send_file, session, url_for
-
-# from kaggle.api.kaggle_api_extended import KaggleApi
+from kaggle.api.kaggle_api_extended import KaggleApi
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -21,7 +20,7 @@ DAILY_NUTRITION = {
 }
 
 app = Flask(__name__, template_folder="views")
-app.secret_key = "your_secret_key"  # Needed for session
+app.secret_key = "5e115ed662344652ecc892e49c958e85"  # Needed for session
 
 # ===== KAGGLE IMAGE PROXY SETUP ===== #
 
