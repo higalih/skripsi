@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 from flask import Flask, redirect, render_template, request, send_file, session, url_for
-from kaggle.api.kaggle_api_extended import KaggleApi
 from scipy.sparse import csr_matrix, hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -20,7 +19,7 @@ DAILY_NUTRITION = {
 }
 
 app = Flask(__name__, template_folder="views")
-app.secret_key = "5e115ed662344652ecc892e49c958e85"  # Needed for session
+app.secret_key = "your_secret_key"  # Needed for session
 
 # ===== KAGGLE IMAGE PROXY SETUP ===== #
 
@@ -28,14 +27,14 @@ app.secret_key = "5e115ed662344652ecc892e49c958e85"  # Needed for session
 os.environ["KAGGLE_CONFIG_DIR"] = os.path.dirname(os.path.abspath(__file__))
 
 # Initialize Kaggle API
-kaggle_api = None
-try:
-    kaggle_api = KaggleApi()
-    kaggle_api.authenticate()
-    print("Kaggle API authenticated successfully")
-except Exception as e:
-    print(f"Kaggle API error: {str(e)}")
-    kaggle_api = None
+# kaggle_api = None
+# try:
+# kaggle_api = KaggleApi()
+# kaggle_api.authenticate()
+# print("Kaggle API authenticated successfully")
+# except Exception as e:
+# print(f"Kaggle API error: {str(e)}")
+# kaggle_api = None
 
 
 @app.route("/kaggle_image/<int:recipe_id>")
