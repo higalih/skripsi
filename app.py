@@ -81,15 +81,17 @@ knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
 knn.fit(X_combined)
 
 
+# Function to recommend recipes
 def recommend_recipes(input_features):
     input_features_scaled = scaler.transform([input_features[:7]])
     input_ingredients_transformed = vectorizer.transform([input_features[7]])
     input_numerical_sparse = csr_matrix(input_features_scaled)
     input_combined = hstack([input_numerical_sparse, input_ingredients_transformed])
     distances, indices = knn.kneighbors(input_combined)
-    recommendations = data.iloc[indices[0]]
+    recommendations = data.iloc[indices[0]].copy()
+    recommendations["distance"] = distances[0]
     return recommendations[
-        ["recipe_name", "ingredients_list", "image_url", "recipe_id"]
+        ["recipe_name", "ingredients_list", "image_url", "recipe_id", "distance"]
     ].head(5)
 
 
