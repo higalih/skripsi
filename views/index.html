@@ -267,6 +267,9 @@
                         <div class="card-body">
                             <h5 class="card-title text-success font-weight-bold">{{ recipe['recipe_name'] }}</h5>
                             <p class="card-text text-muted">{{ recipe['ingredients_list'] | truncate(100) }}</p>
+                            <p class="card-text text-info font-weight-bold mb-0">
+                                Distance: {{ recipe['distance'] | round(4) }}
+                            </p>
                         </div>
                     </div>
                 </div>
