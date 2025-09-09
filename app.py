@@ -81,12 +81,12 @@ scaler = None
 X_combined = None
 
 # Train KNN Model
-knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
+# knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
 # knn.fit(X_combined)
 knn = None
 
 
-@app.before_first_request  # type: ignore
+@app.before_first_request  # type: ignore[attr-defined]
 def load_resources():
     global data, vectorizer, scaler, X_combined, knn
     if data is None:
@@ -229,9 +229,4 @@ def reset():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
-    app.run(host="0.0.0.0", debug=True)
-    app.run(host="0.0.0.0", debug=True)
-    app.run(host="0.0.0.0", debug=True)
-    app.run(host="0.0.0.0", debug=True)
     app.run(host="0.0.0.0", debug=True)
