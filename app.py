@@ -50,74 +50,39 @@ def serve_image(recipe_id):
 
 
 # Load data
-# data = pd.read_csv("recipes_kaggle_images.csv")
-data = None
+data = pd.read_csv("recipes_kaggle_images.csv")
 
 # Preprocess Ingredients
-# vectorizer = TfidfVectorizer(max_features=500)  # Limit features for memory
-vectorizer = None
-# X_ingredients = vectorizer.fit_transform(data["ingredients_list"])
+vectorizer = TfidfVectorizer(max_features=500)  # Limit features for memory
+X_ingredients = vectorizer.fit_transform(data["ingredients_list"])
 
 # Normalize Numerical Features
-# scaler = StandardScaler()
-scaler = None
-# X_numerical = scaler.fit_transform(
-#     data[
-#         [
-#             "calories",
-#             "fat",
-#             "carbohydrates",
-#             "protein",
-#             "cholesterol",
-#             "sodium",
-#             "fiber",
-#         ]
-#     ]
-# )
+scaler = StandardScaler()
+X_numerical = scaler.fit_transform(
+    data[
+        [
+            "calories",
+            "fat",
+            "carbohydrates",
+            "protein",
+            "cholesterol",
+            "sodium",
+            "fiber",
+        ]
+    ]
+)
 
 # Combine Features (keep everything sparse)
-# X_numerical_sparse = csr_matrix(X_numerical)
-# X_combined = hstack([X_numerical_sparse, X_ingredients])
-X_combined = None
+X_numerical_sparse = csr_matrix(X_numerical)
+X_combined = hstack([X_numerical_sparse, X_ingredients])
 
 # Train KNN Model
-# knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
-# knn.fit(X_combined)
-knn = None
-
-
-@app.before_first_request  # type: ignore[attr-defined]
-def load_resources():
-    global data, vectorizer, scaler, X_combined, knn
-    if data is None:
-        data = pd.read_csv("recipes_kaggle_images.csv")
-        vectorizer = TfidfVectorizer(max_features=500)
-        X_ingredients = vectorizer.fit_transform(data["ingredients_list"])
-        scaler = StandardScaler()
-        X_numerical = scaler.fit_transform(
-            data[
-                [
-                    "calories",
-                    "fat",
-                    "carbohydrates",
-                    "protein",
-                    "cholesterol",
-                    "sodium",
-                    "fiber",
-                ]
-            ]
-        )
-        X_numerical_sparse = csr_matrix(X_numerical)
-        X_combined = hstack([X_numerical_sparse, X_ingredients])
-        knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
-        knn.fit(X_combined)
+knn = NearestNeighbors(n_neighbors=3, metric="euclidean")
+knn.fit(X_combined)
 
 
 # Function to recommend recipes
 def recommend_recipes(input_features):
-    # Make sure resources are loaded
-    if any(x is None for x in [data, vectorizer, scaler, knn]):
-        load_resources()
     input_features_scaled = scaler.transform([input_features[:7]])
     input_ingredients_transformed = vectorizer.transform([input_features[7]])
     input_numerical_sparse = csr_matrix(input_features_scaled)
